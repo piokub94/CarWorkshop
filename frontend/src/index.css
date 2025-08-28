@@ -1,0 +1,281 @@
+:root {
+  --color-bg: #121212;
+  --color-text: #e0e0e0;
+  --color-accent: #e53935;
+  --color-border: #424242;
+  --color-error: #ef5350;
+  --color-success: #66bb6a;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+button {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  border: none;
+  padding: 0.6em 1.2em;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover,
+button:focus {
+  background-color: #b62c28; /* ciemniejszy czerwony */
+  outline: none;
+}
+
+input,
+select,
+textarea {
+  background-color: #222;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 0.5em;
+  border-radius: 3px;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1em;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3em;
+  font-weight: 600;
+}
+
+.alert {
+  padding: 0.8em 1em;
+  border-radius: 4px;
+  margin-bottom: 1em;
+}
+
+.alert.error {
+  background-color: var(--color-error);
+  color: #fff;
+}
+
+.alert.success {
+  background-color: var(--color-success);
+  color: #fff;
+}
+
+form {
+  max-width: 400px;
+  margin: auto;
+}
+
+@media (max-width: 480px) {
+  form {
+    padding: 0 1em;
+  }
+}
+
+/* react-tel-input */
+.react-tel-input .form-control::placeholder {
+  color: #bbb;
+  opacity: 1;
+}
+
+.react-tel-input .form-control:focus {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 5px var(--color-accent);
+  outline: none !important;
+}
+
+.react-tel-input .country-list {
+  background-color: #222 !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.react-tel-input .country-list .country.highlight {
+  background-color: var(--color-accent) !important; /* kontrastujący czerwony */
+  color: #fff !important;
+}
+
+.react-tel-input .country-list .country {
+  padding: 0.3em 0.6em;
+  cursor: pointer;
+}
+
+.react-tel-input .country-list .country:hover {
+  background-color: #b62c28 !important; /* ciemniejszy czerwony na hover */
+  color: #fff !important;
+}
+
+/* Tło i obramowanie flagi oraz elementu wyboru kraju */
+.react-tel-input .flag-dropdown {
+  background-color: #222 !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Flaga wewnątrz */
+.react-tel-input .selected-flag {
+  background-color: #222 !important;
+  color: var(--color-text) !important;
+}
+
+/* Pole wyszukiwania w dropdown */
+.react-tel-input .search {
+  background-color: #222 !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Placeholder w polu wyszukiwania */
+.react-tel-input .search input::placeholder {
+  color: #bbb !important;
+  opacity: 1;
+}
+
+/* Specjalne style dla react-calendar */
+.react-calendar {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px !important;
+  padding: 1em !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.react-calendar__tile {
+  background: none !important;
+  color: var(--color-text) !important;
+  border-radius: 4px !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.react-calendar__tile:hover {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+}
+
+.react-calendar__tile--active {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+
+.react-calendar__tile--neighboringMonth {
+  color: #888888 !important;
+}
+
+.react-calendar__tile.no-availability {
+  color: var(--color-error) !important;
+  font-weight: 700 !important;
+  cursor: not-allowed !important;
+}
+
+.react-calendar__tile.no-availability:hover {
+  background-color: transparent !important;
+  color: var(--color-error) !important;
+}
+
+.react-calendar__navigation__arrow {
+  color: var(--color-text) !important;
+  background-color: transparent !important;
+  border: none !important;
+  font-size: 1.5em !important;
+  cursor: pointer !important;
+  transition: color 0.3s ease !important;
+}
+
+.react-calendar__navigation__arrow:hover,
+.react-calendar__navigation__arrow:focus {
+  color: var(--color-accent) !important;
+  outline: none !important;
+}
+
+.react-calendar__navigation__label {
+  color: var(--color-text) !important;
+  background-color: transparent !important;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  cursor: default;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.react-calendar__navigation__label:hover,
+.react-calendar__navigation__label:focus {
+  background-color: var(--color-accent) !important;
+  color: #fff !important;
+  outline: none !important;
+}
+
+.react-calendar__navigation__label {
+  pointer-events: none;
+}
+
+/* Pasek z animacją logotypów samochodowych */
+.car-logos-animation-container {
+  overflow: hidden;
+  width: 100%;
+  background-color: var(--color-accent);
+  padding: 20px 0;
+  border-top: 1px solid #b71c1c;
+  border-bottom: 1px solid #b71c1c;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4);
+}
+
+.car-logos-track {
+  display: flex;
+  /* Szerokość kontenera musi być dokładnie dwukrotnością szerokości paska z logotypami */
+  width: auto;
+  animation: scrollLeft 60s linear infinite;
+}
+
+/* Pojedynczy element z logiem */
+.car-logo-item {
+  flex-shrink: 0;
+  height: 80px;
+  margin: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.car-logo {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0.9);
+  transition: filter 0.3s ease;
+}
+
+.car-logo:hover {
+  filter: brightness(1);
+  cursor: pointer;
+}
+
+/* Definicja animacji */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* To przesunięcie jest kluczowe */
+  }
+}

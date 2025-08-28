@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "country-telephone-data": "^0.6.3",
+    "react-calendar": "^6.0.0",
+    "react-phone-input-2": "^2.15.1",
+    "react-phone-number-input": "^3.4.12"
+  }
+}
