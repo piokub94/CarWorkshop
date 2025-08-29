@@ -130,6 +130,9 @@ export default function MyVehicles() {
     }
   };
 
+  // Bezpieczna zmienna do mapowania
+  const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
+
   return (
     <div>
       <h2>Moje pojazdy</h2>
@@ -156,7 +159,7 @@ export default function MyVehicles() {
       </form>
 
       <ul>
-        {vehicles.map((v) => (
+        {vehiclesSafe.map((v) => (
           <li key={v.id} style={{ marginBottom: 8 }}>
             {editId === v.id ? (
               <form onSubmit={saveEdit}>

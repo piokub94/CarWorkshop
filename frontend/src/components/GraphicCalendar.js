@@ -12,22 +12,24 @@ export default function GraphicCalendar({ onDateChange, calendarData }) {
   };
 
   // Wizualne oznaczenie dni bez slotów oraz weekendów
-  const tileClassName = ({ date, view }) => {
-    if (view === 'month') {
-      const dayOfWeek = date.getDay();
-      const dateStr = date.toISOString().slice(0, 10);
-      const day = calendarData.find(d => d.date === dateStr);
+const tileClassName = ({ date, view }) => {
+  if (view === 'month') {
+    const dayOfWeek = date.getDay();
+    const dateStr = date.toISOString().slice(0, 10);
+    const day = Array.isArray(calendarData) ? calendarData.find(d => d.date === dateStr) : null;
 
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        return 'no-availability';  // czerwone oznaczenie weekendów
-      }
-
-      if (!day || !day.slots.some(slot => slot.available)) {
-        return 'no-availability';  // czerwone oznaczenie braku slotów
-      }
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return 'no-availability';  // czerwone oznaczenie weekendów
     }
-    return null;
-  };
+
+    if (!day || !Array.isArray(day.slots) || !day.slots.some(slot => slot.available)) {
+      return 'no-availability';  // czerwone oznaczenie braku slotów
+    }
+  }
+  return null;
+};
+
+
 
   // Wyłączamy kliknięcie tylko w soboty i niedziele.
   // Pozostałe dni (nawet bez slotów) są klikalne.
