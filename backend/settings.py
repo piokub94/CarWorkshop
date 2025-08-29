@@ -151,8 +151,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # WhiteNoise wymaga statycznych plików w STATIC_ROOT
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+import os
 
-# CORS
-CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+
+CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
+CSRF_TRUSTED_ORIGINS = ALLOWED_ORIGINS
