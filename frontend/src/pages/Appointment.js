@@ -45,14 +45,16 @@ export default function Appointment() {
     load();
   }, []);
 
-const slotsForSelectedDay = useMemo(() => {
-  if (!selectedDate) return [];
-  const dateString = selectedDate.toISOString().slice(0, 10);
-  const day = calendar.find((d) => d.date === dateString);
-  console.log(`Sloty dla dnia ${dateString}: `, day?.slots); // <- dodaj ten console.log
-  if (!day) return [];
-  return (day.slots || []).filter((s) => s.id && s.available);
-}, [calendar, selectedDate]);
+  const slotsForSelectedDay = useMemo(() => {
+    if (!selectedDate) return [];
+    const dateString = selectedDate.toISOString().slice(0, 10);
+    const day = calendar.find((d) => d.date === dateString);
+    console.log(`Sloty dla dnia ${dateString}: `, day?.slots); // <- można zostawić debugowanie
+    if (!day) return [];
+    return Array.isArray(day.slots) ? day.slots.filter((s) => s.id && s.available) : [];
+  }, [calendar, selectedDate]);
+
+  const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
 
   const submit = async (e) => {
     e.preventDefault();
@@ -144,7 +146,7 @@ const slotsForSelectedDay = useMemo(() => {
             onChange={(e) => setSelectedVehicleId(e.target.value)}
           >
             <option value="">-- wybierz --</option>
-            {vehicles.map((v) => (
+            {vehiclesSafe.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.brand} {v.model} ({v.engine})
               </option>
