@@ -20,7 +20,7 @@ urlpatterns = [
     # Profile
     path('profile/', profile_view, name='profile'),
 
-    # Calendar
+    # Calendar 
     path('calendar/', calendar_view, name='calendar'),
 
     # Appointments
