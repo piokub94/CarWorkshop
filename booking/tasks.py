@@ -1,4 +1,3 @@
-# booking/tasks.py
 from celery import shared_task
 from django.utils import timezone
 from datetime import date, timedelta, time
@@ -66,7 +65,7 @@ def create_time_slots():
     """Tworzy sloty na kolejne 90 dni od dziś, w godzinach 9:00-16:30 co 30 minut."""
     start_date = date.today()
     end_date = start_date + timedelta(days=90)
-    for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1)):
+    for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days)):
         for hour in range(9, 17):
             for minute in (0, 30):
                 slot_time = time(hour, minute)
@@ -77,8 +76,3 @@ def create_time_slots():
                 )
                 if created:
                     print(f"Utworzono slot: {single_date} {slot_time}")
-                else:
-                    if obj.is_booked:
-                        obj.is_booked = False
-                        obj.save()
-                        print(f"Odblokowano slot: {single_date} {slot_time}")
