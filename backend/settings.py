@@ -32,6 +32,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -58,7 +59,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Domyślna lokalna konfiguracja bazy
+# Modyfikacja konfiguracji bazy danych
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Domyślna konfiguracja lokalna bazy danych
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -70,7 +74,7 @@ DATABASES = {
     }
 }
 
-# Automatycznie nadpisz ustawienia bazy jeśli mamy DATABASE_URL
+# Nadpisz konfigurację bazy przez Railway DATABASE_URL jeśli jest ustawiona
 if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.config(
         default=os.environ.get('DATABASE_URL'),
@@ -109,8 +113,8 @@ CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
 CSRF_TRUSTED_ORIGINS = ALLOWED_ORIGINS
 
 # Celery configuration
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -128,8 +132,8 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute=0, hour=0),  # Codziennie o północy
     },
 }
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Django REST framework settings
 REST_FRAMEWORK = {
