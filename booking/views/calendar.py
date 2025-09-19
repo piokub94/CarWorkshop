@@ -21,13 +21,14 @@ def calendar_view(request):
             for minute in (0, 30):
                 slot_time = time(hour, minute)
                 slot_obj = slots_dict.get((current_day, slot_time))
-                is_booked = slot_obj.is_booked if slot_obj else False
-                day_slots.append({
-                    'id': slot_obj.id if slot_obj else None,
-                    'time': slot_time.strftime('%H:%M'),
-                    'available': not is_booked
-                })
-        # Dodajemy dzień z listą slotów, nawet jeśli pusta (np. weekend)
+                if slot_obj:
+                    day_slots.append({
+                        'id': slot_obj.id,
+                        'time': slot_time.strftime('%H:%M'),
+                        'available': not slot_obj.is_booked
+                    })
+                # Jeśli chcesz pominąć sloty bez wpisu w bazie, nic nie dodawaj
+                # Ewentualnie może dodać puste/nieaktywne sloty, ale wtedy frontend musi to obsłużyć
         result.append({'date': current_day.isoformat(), 'slots': day_slots})
         current_day += timedelta(days=1)
 

@@ -60,11 +60,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'workshop',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -83,7 +86,16 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '').split(',')
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '')
+
+if ALLOWED_ORIGINS:
+    ALLOWED_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS.split(',') if origin.strip()]
+else:
+    ALLOWED_ORIGINS = [
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:3000",  # jeśli frontend działa na 3000
+    ]
 
 CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
 CSRF_TRUSTED_ORIGINS = ALLOWED_ORIGINS
@@ -108,6 +120,8 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute=0, hour=0),  # Codziennie o północy
     },
 }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # Django REST framework settings
 REST_FRAMEWORK = {

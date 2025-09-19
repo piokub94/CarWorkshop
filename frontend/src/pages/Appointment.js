@@ -49,9 +49,8 @@ export default function Appointment() {
     if (!selectedDate) return [];
     const dateString = selectedDate.toISOString().slice(0, 10);
     const day = calendar.find((d) => d.date === dateString);
-    console.log(`Sloty dla dnia ${dateString}: `, day?.slots); // <- można zostawić debugowanie
     if (!day) return [];
-    return Array.isArray(day.slots) ? day.slots.filter((s) => s.id && s.available) : [];
+    return Array.isArray(day.slots) ? day.slots.filter((s) => s.available) : [];
   }, [calendar, selectedDate]);
 
   const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
@@ -130,7 +129,7 @@ export default function Appointment() {
             >
               <option value="">-- wybierz --</option>
               {slotsForSelectedDay.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id ?? s.time} value={s.id ?? s.time}>
                   {s.time}
                 </option>
               ))}
