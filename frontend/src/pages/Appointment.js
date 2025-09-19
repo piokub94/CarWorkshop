@@ -45,12 +45,17 @@ export default function Appointment() {
     load();
   }, []);
 
+  console.log('Kalendarz:', calendar);
+  console.log('Wybrana data:', selectedDate);
+
   const slotsForSelectedDay = useMemo(() => {
     if (!selectedDate) return [];
     const dateString = selectedDate.toISOString().slice(0, 10);
     const day = calendar.find((d) => d.date === dateString);
     if (!day) return [];
-    return Array.isArray(day.slots) ? day.slots.filter((s) => s.available) : [];
+    const availableSlots = Array.isArray(day.slots) ? day.slots.filter((s) => s.available) : [];
+    console.log(`Sloty dla dnia ${dateString}:`, availableSlots);
+    return availableSlots;
   }, [calendar, selectedDate]);
 
   const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
@@ -58,10 +63,6 @@ export default function Appointment() {
   const submit = async (e) => {
     e.preventDefault();
     setMessage(null);
-
-    if (!selectedDate) return setMessage('Wybierz datę.');
-    if (!selectedSlotId) return setMessage('Wybierz godzinę.');
-    if (!selectedVehicleId) return setMessage('Wybierz pojazd.');
 
     const payload = {
       slot: selectedSlotId,
@@ -73,6 +74,12 @@ export default function Appointment() {
     if (profile?.phone_number) {
       payload.phone_number = profile.phone_number;
     }
+
+    console.log('Wysyłany payload:', payload);
+
+    if (!selectedDate) return setMessage('Wybierz datę.');
+    if (!selectedSlotId) return setMessage('Wybierz godzinę.');
+    if (!selectedVehicleId) return setMessage('Wybierz pojazd.');
 
     try {
       setSubmitting(true);

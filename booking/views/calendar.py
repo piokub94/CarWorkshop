@@ -9,8 +9,10 @@ def calendar_view(request):
     today = timezone.localdate()
     end_date = today + timedelta(days=90)
 
+    # Pobieramy sloty w danym zakresie dat
     slots = TimeSlot.objects.filter(date__range=(today, end_date))
-    slots_dict = {(slot.date, slot.time): slot for slot in slots}
+    # Tworzymy słownik z kluczem jako para (data, godzina w formacie HH:MM)
+    slots_dict = {(slot.date, slot.time.strftime('%H:%M')): slot for slot in slots}
 
     result = []
     current_day = today
@@ -19,16 +21,14 @@ def calendar_view(request):
         day_slots = []
         for hour in range(9, 17):  # od 9:00 do 16:30 (ostatni slot)
             for minute in (0, 30):
-                slot_time = time(hour, minute)
-                slot_obj = slots_dict.get((current_day, slot_time))
+                slot_time_str = f"{hour:02d}:{minute:02d}"
+                slot_obj = slots_dict.get((current_day, slot_time_str))
                 if slot_obj:
                     day_slots.append({
                         'id': slot_obj.id,
-                        'time': slot_time.strftime('%H:%M'),
+                        'time': slot_time_str,
                         'available': not slot_obj.is_booked
                     })
-                # Jeśli chcesz pominąć sloty bez wpisu w bazie, nic nie dodawaj
-                # Ewentualnie może dodać puste/nieaktywne sloty, ale wtedy frontend musi to obsłużyć
         result.append({'date': current_day.isoformat(), 'slots': day_slots})
         current_day += timedelta(days=1)
 
