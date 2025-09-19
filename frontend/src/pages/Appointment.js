@@ -24,38 +24,44 @@ export default function Appointment() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const load = async () => {
-    try {
-      const [cal, veh, prof] = await Promise.all([
-        api.get('calendar/'),
-        api.get('vehicles/'),
-        api.get('profile/'),
-      ]);
-      setCalendar(cal.data);
-      setVehicles(veh.data);
-      setProfile(prof.data);
-    } catch {
-      setMessage('Błąd podczas ładowania danych.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Ładowanie danych kalendarza, pojazdów i profilu
   useEffect(() => {
+    const load = async () => {
+      try {
+        const [cal, veh, prof] = await Promise.all([
+          api.get('calendar/'),
+          api.get('vehicles/'),
+          api.get('profile/'),
+        ]);
+        setCalendar(cal.data);
+        setVehicles(veh.data);
+        setProfile(prof.data);
+      } catch {
+        setMessage('Błąd podczas ładowania danych.');
+      } finally {
+        setLoading(false);
+      }
+    };
     load();
   }, []);
 
-  console.log('Kalendarz:', calendar);
-  console.log('Wybrana data:', selectedDate);
+  // Ustawienie pierwszego dnia z dostępnych slotów jako wybranej daty
+  useEffect(() => {
+    if (calendar.length && !selectedDate) {
+      const firstAvailableDay = calendar.find(day => day.slots?.some(s => s.available));
+      if (firstAvailableDay) {
+        setSelectedDate(new Date(firstAvailableDay.date));
+      }
+    }
+  }, [calendar, selectedDate]);
 
+  // Sloty dla wybranego dnia
   const slotsForSelectedDay = useMemo(() => {
     if (!selectedDate) return [];
     const dateString = selectedDate.toISOString().slice(0, 10);
-    const day = calendar.find((d) => d.date === dateString);
+    const day = calendar.find(d => d.date === dateString);
     if (!day) return [];
-    const availableSlots = Array.isArray(day.slots) ? day.slots.filter((s) => s.available) : [];
-    console.log(`Sloty dla dnia ${dateString}:`, availableSlots);
-    return availableSlots;
+    return day.slots.filter(slot => slot.available);
   }, [calendar, selectedDate]);
 
   const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
@@ -64,38 +70,34 @@ export default function Appointment() {
     e.preventDefault();
     setMessage(null);
 
+    if (!selectedDate) return setMessage('Wybierz datę.');
+    if (!selectedSlotId) return setMessage('Wybierz godzinę.');
+    if (!selectedVehicleId) return setMessage('Wybierz pojazd.');
+
     const payload = {
       slot: selectedSlotId,
       vehicle: selectedVehicleId,
       service_type: serviceType,
       description: description || '',
+      phone_number: profile?.phone_number || '',
     };
-
-    if (profile?.phone_number) {
-      payload.phone_number = profile.phone_number;
-    }
-
-    console.log('Wysyłany payload:', payload);
-
-    if (!selectedDate) return setMessage('Wybierz datę.');
-    if (!selectedSlotId) return setMessage('Wybierz godzinę.');
-    if (!selectedVehicleId) return setMessage('Wybierz pojazd.');
 
     try {
       setSubmitting(true);
       await api.post('appointments/', payload);
       setMessage('Wizyta została umówiona. Otrzymasz SMS z potwierdzeniem.');
+
+      // Reset formularza
       setSelectedDate(null);
       setSelectedSlotId('');
       setSelectedVehicleId('');
       setServiceType('PRZEGLAD');
       setDescription('');
+
       const cal = await api.get('calendar/');
       setCalendar(cal.data);
-    } catch (err) {
-      const msg = err?.response?.data
-        ? JSON.stringify(err.response.data)
-        : 'Błąd podczas zapisywania wizyty.';
+    } catch (error) {
+      const msg = error?.response?.data ? JSON.stringify(error.response.data) : 'Błąd podczas zapisywania wizyty.';
       setMessage(msg);
     } finally {
       setSubmitting(false);
@@ -109,80 +111,57 @@ export default function Appointment() {
     <div>
       <h2>Umów wizytę</h2>
       {message && (
-        <p
-          style={{
-            color: message.includes('Błąd') ? 'red' : 'green',
-            whiteSpace: 'pre-wrap',
-          }}
-        >
+        <p style={{ color: message.includes('Błąd') ? 'red' : 'green', whiteSpace: 'pre-wrap' }}>
           {message}
         </p>
       )}
 
       <form onSubmit={submit}>
-        <div>
-          <label>Data:</label>
-          <br />
-          <GraphicCalendar onDateChange={setSelectedDate} calendarData={calendar} />
-        </div>
+        <label>Data:</label><br />
+        <GraphicCalendar
+          onDateChange={setSelectedDate}
+          calendarData={calendar}
+          value={selectedDate}
+        />
 
         {selectedDate && (
-          <div>
-            <label>Godzina:</label>
-            <br />
-            <select
-              value={selectedSlotId}
-              onChange={(e) => setSelectedSlotId(e.target.value)}
-            >
+          <>
+            <label>Godzina:</label><br />
+            <select value={selectedSlotId} onChange={e => setSelectedSlotId(e.target.value)}>
               <option value="">-- wybierz --</option>
-              {slotsForSelectedDay.map((s) => (
-                <option key={s.id ?? s.time} value={s.id ?? s.time}>
-                  {s.time}
+              {slotsForSelectedDay.map(slot => (
+                <option key={slot.id} value={slot.id}>
+                  {slot.time}
                 </option>
               ))}
             </select>
-          </div>
+          </>
         )}
 
-        <div>
-          <label>Pojazd:</label>
-          <br />
-          <select
-            value={selectedVehicleId}
-            onChange={(e) => setSelectedVehicleId(e.target.value)}
-          >
-            <option value="">-- wybierz --</option>
-            {vehiclesSafe.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.brand} {v.model} ({v.engine})
-              </option>
-            ))}
-          </select>
-        </div>
+        <label>Pojazd:</label><br />
+        <select value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)}>
+          <option value="">-- wybierz --</option>
+          {vehiclesSafe.map(vehicle => (
+            <option key={vehicle.id} value={vehicle.id}>
+              {vehicle.brand} {vehicle.model} ({vehicle.engine})
+            </option>
+          ))}
+        </select>
 
-        <div>
-          <label>Usługa:</label>
-          <br />
-          <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
-            {SERVICE_TYPES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <label>Usługa:</label><br />
+        <select value={serviceType} onChange={e => setServiceType(e.target.value)}>
+          {SERVICE_TYPES.map(s => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
 
-        <div>
-          <label>Opis (opcjonalnie):</label>
-          <br />
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-        </div>
+        <label>Opis (opcjonalnie):</label><br />
+        <textarea value={description} onChange={e => setDescription(e.target.value)} />
 
-        <div>
-          <label>Numer do SMS:</label>
-          <br />
-          <input type="tel" value={profile?.phone_number || ''} readOnly />
-        </div>
+        <label>Numer do SMS:</label><br />
+        <input type="tel" value={profile?.phone_number || ''} readOnly />
 
         <button type="submit" disabled={submitting}>
           {submitting ? 'Wysyłanie...' : 'Umów wizytę'}

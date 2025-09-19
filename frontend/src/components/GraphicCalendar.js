@@ -1,49 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import '../index.css';
 
-export default function GraphicCalendar({ onDateChange, calendarData }) {
-  const [value, setValue] = useState(new Date());
+export default function GraphicCalendar({ onDateChange, calendarData, value }) {
+  useEffect(() => {
+    if (!value && Array.isArray(calendarData)) {
+      const firstAvailableDay = calendarData.find(day => day.slots?.some(slot => slot.available));
+      if (firstAvailableDay) {
+        onDateChange(new Date(firstAvailableDay.date));
+      }
+    }
+  }, [calendarData, value, onDateChange]);
 
-  const handleChange = (date) => {
-    setValue(date);
-    onDateChange(date);
+  const tileClassName = ({ date, view }) => {
+    if (view === 'month') {
+      const dayOfWeek = date.getDay();
+      const dateStr = date.toISOString().slice(0,10);
+      const day = calendarData.find(d => d.date === dateStr);
+
+      if (dayOfWeek === 0 || dayOfWeek === 6) return 'no-availability';
+      if (!day || !day.slots.some(s => s.available)) return 'no-availability';
+    }
+    return null;
   };
 
-  // Wizualne oznaczenie dni bez slotów oraz weekendów
-const tileClassName = ({ date, view }) => {
-  if (view === 'month') {
-    const dayOfWeek = date.getDay();
-    const dateStr = date.toISOString().slice(0, 10);
-    const day = Array.isArray(calendarData) ? calendarData.find(d => d.date === dateStr) : null;
-
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return 'no-availability';  // czerwone oznaczenie weekendów
-    }
-
-    if (!day || !Array.isArray(day.slots) || !day.slots.some(slot => slot.available)) {
-      return 'no-availability';  // czerwone oznaczenie braku slotów
-    }
-  }
-  return null;
-};
-
-
-
-  // Wyłączamy kliknięcie tylko w soboty i niedziele.
-  // Pozostałe dni (nawet bez slotów) są klikalne.
   const tileDisabled = ({ date, view }) => {
     if (view === 'month') {
       const dayOfWeek = date.getDay();
-      return dayOfWeek === 0 || dayOfWeek === 6; // wyłączamy tylko weekendy
+      return dayOfWeek === 0 || dayOfWeek === 6;
     }
     return false;
   };
 
   return (
     <Calendar
-      onChange={handleChange}
+      onChange={onDateChange}
       value={value}
       minDate={new Date()}
       maxDate={new Date(new Date().setDate(new Date().getDate() + 90))}
@@ -54,11 +45,7 @@ const tileClassName = ({ date, view }) => {
       nextLabel=">"
       prevLabel="<"
       view="month"
-      onActiveStartDateChange={({ view }) => {
-        if (view !== 'month') {
-          // blokujemy zmianę widoku na inny niż miesiąc
-        }
-      }}
+      onActiveStartDateChange={({ view }) => view !== 'month' && onDateChange(new Date())} 
       navigationLabel={({ label }) => <span style={{ cursor: 'default' }}>{label}</span>}
     />
   );
