@@ -9,7 +9,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-for-local-development
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']  # Możesz tutaj dodać swoje hosty produkcyjne lub Railway URLs
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -29,15 +29,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # musi być zaraz po SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -59,10 +58,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Modyfikacja konfiguracji bazy danych
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# Domyślna konfiguracja lokalna bazy danych
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -74,10 +71,9 @@ DATABASES = {
     }
 }
 
-# Nadpisz konfigurację bazy przez Railway DATABASE_URL jeśli jest ustawiona
-if os.environ.get('DATABASE_URL'):
+if DATABASE_URL:
     DATABASES['default'] = dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+        default=DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
     )
@@ -94,10 +90,14 @@ TIME_ZONE = 'Europe/Warsaw'  # ujednolicone z celery
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Konfiguracja plików statycznych dla produkcji i Railway
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # folder, do którego collectstatic zbiera pliki
+
+# Przechowywanie i kompresja plików statycznych WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# CORS i CSRF
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '')
 
 if ALLOWED_ORIGINS:
@@ -125,15 +125,15 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'send-reminder-sms-every-minute': {
         'task': 'booking.tasks.send_reminder_sms',
-        'schedule': crontab(minute='*/1'),  # Możesz zmienić na mniej agresywne, np codziennie
+        'schedule': crontab(minute='*/1'),
     },
     'create-time-slots-daily': {
         'task': 'booking.tasks.create_time_slots',
-        'schedule': crontab(minute=0, hour=0),  # Codziennie o północy
+        'schedule': crontab(minute=0, hour=0),
     },
 }
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST framework settings
 REST_FRAMEWORK = {
