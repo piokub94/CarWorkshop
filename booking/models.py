@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
+
 from booking.utils.sms import send_sms
 
 
@@ -68,8 +69,11 @@ class Profile(models.Model):
         return f"Profil użytkownika {self.user.username}"
 
 
+# --- Signals (po definicjach modeli) ---
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
+    # Tworzymy profil przy rejestracji; przy aktualizacji dbamy, by istniał
     if created:
         Profile.objects.create(user=instance)
     else:
@@ -78,6 +82,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Appointment)
 def appointment_created_sms(sender, instance, created, **kwargs):
+    """Wyślij SMS po utworzeniu wizyty; użyj numeru z wizyty lub z profilu."""
     if created:
         phone_number = instance.phone_number or getattr(getattr(instance.user, "profile", None), "phone_number", None)
         if phone_number:

@@ -2,34 +2,42 @@ import React, { useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 
-export default function GraphicCalendar({ onDateChange, calendarData, value }) {
+// Helper: konwersja Date -> YYYY-MM-DD (lokalnie)
+const toYMD = (d) =>
+  d.getFullYear() +
+  '-' +
+  String(d.getMonth() + 1).padStart(2, '0') +
+  '-' +
+  String(d.getDate()).padStart(2, '0');
+
+export default function GraphicCalendar({ calendarData, value, onDateChange }) {
   useEffect(() => {
     if (!value && Array.isArray(calendarData)) {
-      const firstAvailableDay = calendarData.find(day => day.slots?.some(slot => slot.available));
+      const firstAvailableDay = calendarData.find((day) =>
+        day.slots?.some((slot) => slot.available)
+      );
       if (firstAvailableDay) {
-        onDateChange(new Date(firstAvailableDay.date));
+        const [y, m, d] = firstAvailableDay.date.split('-');
+        onDateChange(new Date(y, m - 1, d));
       }
     }
   }, [calendarData, value, onDateChange]);
 
   const tileClassName = ({ date, view }) => {
-    if (view === 'month') {
-      const dayOfWeek = date.getDay();
-      const dateStr = date.toISOString().slice(0,10);
-      const day = calendarData.find(d => d.date === dateStr);
+    if (view !== 'month') return null;
 
-      if (dayOfWeek === 0 || dayOfWeek === 6) return 'no-availability';
-      if (!day || !day.slots.some(s => s.available)) return 'no-availability';
-    }
-    return null;
+    const dateStr = toYMD(date);
+    const day = calendarData.find((d) => d.date === dateStr);
+
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    const noAvailableSlots = !day || !day.slots.some((slot) => slot.available);
+
+    return isWeekend || noAvailableSlots ? 'no-availability' : null;
   };
 
   const tileDisabled = ({ date, view }) => {
-    if (view === 'month') {
-      const dayOfWeek = date.getDay();
-      return dayOfWeek === 0 || dayOfWeek === 6;
-    }
-    return false;
+    if (view !== 'month') return false;
+    return date.getDay() === 0 || date.getDay() === 6;
   };
 
   return (
@@ -45,8 +53,6 @@ export default function GraphicCalendar({ onDateChange, calendarData, value }) {
       nextLabel=">"
       prevLabel="<"
       view="month"
-      onActiveStartDateChange={({ view }) => view !== 'month' && onDateChange(new Date())} 
-      navigationLabel={({ label }) => <span style={{ cursor: 'default' }}>{label}</span>}
     />
   );
 }

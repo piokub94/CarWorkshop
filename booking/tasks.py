@@ -63,16 +63,23 @@ def test_reminder_sms(phone_number="+48123456789"):
 @shared_task
 def create_time_slots():
     """Tworzy sloty na kolejne 90 dni od dziś, w godzinach 9:00-16:30 co 30 minut."""
-    start_date = date.today()
+    start_date = timezone.localdate()
     end_date = start_date + timedelta(days=90)
-    for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days)):
+
+    # Usuwamy stare sloty, aby uniknąć duplikatów
+    # TimeSlot.objects.filter(date__lt=start_date).delete()
+
+    for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1)):
+        # Sprawdź, czy to nie jest weekend
+        if single_date.weekday() in [5, 6]:  # Sobota i Niedziela
+            continue
+
         for hour in range(9, 17):
             for minute in (0, 30):
                 slot_time = time(hour, minute)
-                obj, created = TimeSlot.objects.get_or_create(
+                # Sprawdź, czy slot już istnieje, a jeśli nie, to go utwórz
+                TimeSlot.objects.get_or_create(
                     date=single_date,
                     time=slot_time,
                     defaults={'is_booked': False}
                 )
-                if created:
-                    print(f"Utworzono slot: {single_date} {slot_time}")

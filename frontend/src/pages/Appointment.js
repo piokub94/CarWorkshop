@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/axios';
 import GraphicCalendar from '../components/GraphicCalendar';
+import { useNavigate } from 'react-router-dom';
 
 const SERVICE_TYPES = [
   { value: 'PRZEGLAD', label: 'Przegląd okresowy' },
@@ -9,7 +10,15 @@ const SERVICE_TYPES = [
   { value: 'INNE', label: 'Inne' },
 ];
 
+const toYMD = (d) =>
+  d.getFullYear() +
+  '-' +
+  String(d.getMonth() + 1).padStart(2, '0') +
+  '-' +
+  String(d.getDate()).padStart(2, '0');
+
 export default function Appointment() {
+  const navigate = useNavigate();
   const [calendar, setCalendar] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -24,51 +33,86 @@ export default function Appointment() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Ładowanie danych kalendarza, pojazdów i profilu
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [cal, veh, prof] = await Promise.all([
+  const loadData = async () => {
+    console.log('Rozpoczęto ładowanie danych...');
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      let calendarData = [];
+      let vehiclesData = [];
+      let profileData = null;
+
+      if (token) {
+        // Jeśli użytkownik jest zalogowany, pobierz wszystkie dane
+        const [calResponse, vehResponse, profResponse] = await Promise.all([
           api.get('calendar/'),
           api.get('vehicles/'),
           api.get('profile/'),
         ]);
-        setCalendar(cal.data);
-        setVehicles(veh.data);
-        setProfile(prof.data);
-      } catch {
-        setMessage('Błąd podczas ładowania danych.');
-      } finally {
-        setLoading(false);
+
+        calendarData = calResponse.data;
+        vehiclesData = vehResponse.data;
+        profileData = profResponse.data;
+        console.log('✅ Dane z API (zalogowany) pobrane pomyślnie!');
+      } else {
+        // Jeśli użytkownik nie jest zalogowany, pobierz tylko kalendarz
+        const calResponse = await api.get('calendar/');
+        calendarData = calResponse.data;
+        console.log('✅ Dane kalendarza (niezalogowany) pobrane pomyślnie!');
       }
-    };
-    load();
+
+      setCalendar(calendarData || []);
+      setVehicles(vehiclesData || []);
+      setProfile(profileData || null);
+    } catch (error) {
+      console.error('❌ Błąd podczas ładowania danych:', error);
+      // Przekierowanie na stronę logowania w przypadku błędu 401
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+      setMessage('Błąd podczas ładowania danych.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  // Ustawienie pierwszego dnia z dostępnych slotów jako wybranej daty
-  useEffect(() => {
-    if (calendar.length && !selectedDate) {
-      const firstAvailableDay = calendar.find(day => day.slots?.some(s => s.available));
-      if (firstAvailableDay) {
-        setSelectedDate(new Date(firstAvailableDay.date));
-      }
-    }
-  }, [calendar, selectedDate]);
+  const handleDateChange = (date) => {
+    console.log('📌 Zmiana wybranej daty na:', date);
+    setSelectedDate(date);
+    setSelectedSlotId('');
+  };
 
-  // Sloty dla wybranego dnia
   const slotsForSelectedDay = useMemo(() => {
-    if (!selectedDate) return [];
-    const dateString = selectedDate.toISOString().slice(0, 10);
-    const day = calendar.find(d => d.date === dateString);
-    if (!day) return [];
-    return day.slots.filter(slot => slot.available);
-  }, [calendar, selectedDate]);
+    if (!selectedDate || !Array.isArray(calendar)) {
+      console.log('Brak wybranej daty lub kalendarza. Zwracam pustą listę slotów.');
+      return [];
+    }
+    const dateStr = toYMD(selectedDate);
+    console.log(`🔎 Szukam dnia o dacie: ${dateStr}`);
+    const day = calendar.find(d => d.date === dateStr);
 
-  const vehiclesSafe = Array.isArray(vehicles) ? vehicles : [];
+    if (!day || !Array.isArray(day.slots) || day.slots.length === 0) {
+      console.log(`❌ Brak dostępnych slotów dla dnia: ${dateStr}`);
+      return [];
+    }
+
+    console.log(`✅ Znaleziono ${day.slots.length} slotów dla dnia: ${dateStr}`);
+    return day.slots.filter(s => s.available);
+  }, [calendar, selectedDate]);
 
   const submit = async (e) => {
     e.preventDefault();
     setMessage(null);
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setMessage('Musisz być zalogowany, aby umówić wizytę.');
+      return;
+    }
 
     if (!selectedDate) return setMessage('Wybierz datę.');
     if (!selectedSlotId) return setMessage('Wybierz godzinę.');
@@ -84,20 +128,20 @@ export default function Appointment() {
 
     try {
       setSubmitting(true);
-      await api.post('appointments/', payload);
+      const res = await api.post('appointments/', payload);
+      console.log('✅ Wizyta umówiona:', res.data);
       setMessage('Wizyta została umówiona. Otrzymasz SMS z potwierdzeniem.');
-
-      // Reset formularza
+      await loadData(); // Odświeżenie danych po rezerwacji
       setSelectedDate(null);
       setSelectedSlotId('');
       setSelectedVehicleId('');
       setServiceType('PRZEGLAD');
       setDescription('');
-
-      const cal = await api.get('calendar/');
-      setCalendar(cal.data);
-    } catch (error) {
-      const msg = error?.response?.data ? JSON.stringify(error.response.data) : 'Błąd podczas zapisywania wizyty.';
+    } catch (err) {
+      console.error('❌ Błąd podczas zapisywania wizyty:', err.response?.data);
+      const msg = err.response?.data
+        ? JSON.stringify(err.response.data, null, 2)
+        : 'Błąd podczas zapisywania wizyty.';
       setMessage(msg);
     } finally {
       setSubmitting(false);
@@ -107,66 +151,114 @@ export default function Appointment() {
 
   if (loading) return <div>Ładowanie…</div>;
 
+  const isUserAuthenticated = !!localStorage.getItem('token');
+
   return (
     <div>
       <h2>Umów wizytę</h2>
       {message && (
-        <p style={{ color: message.includes('Błąd') ? 'red' : 'green', whiteSpace: 'pre-wrap' }}>
+        <p
+          style={{
+            color: message.includes('Błąd') ? 'red' : 'green',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
           {message}
         </p>
       )}
 
       <form onSubmit={submit}>
-        <label>Data:</label><br />
-        <GraphicCalendar
-          onDateChange={setSelectedDate}
-          calendarData={calendar}
-          value={selectedDate}
-        />
+        <div>
+          <label>Data:</label>
+          <br />
+          <GraphicCalendar onDateChange={handleDateChange} calendarData={calendar} value={selectedDate} />
+        </div>
 
-        {selectedDate && (
-          <>
-            <label>Godzina:</label><br />
-            <select value={selectedSlotId} onChange={e => setSelectedSlotId(e.target.value)}>
+        {selectedDate && slotsForSelectedDay.length > 0 && (
+          <div>
+            <label>Godzina:</label>
+            <br />
+            <select
+              value={selectedSlotId}
+              onChange={(e) => setSelectedSlotId(e.target.value)}
+            >
               <option value="">-- wybierz --</option>
-              {slotsForSelectedDay.map(slot => (
-                <option key={slot.id} value={slot.id}>
-                  {slot.time}
+              {slotsForSelectedDay.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.time}
                 </option>
               ))}
             </select>
+          </div>
+        )}
+
+        {isUserAuthenticated && (
+          <>
+            <div>
+              <label>Pojazd:</label>
+              <br />
+              <select
+                value={selectedVehicleId}
+                onChange={(e) => setSelectedVehicleId(e.target.value)}
+              >
+                <option value="">-- wybierz --</option>
+                {vehicles.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.brand} {v.model} ({v.engine})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Usługa:</label>
+              <br />
+              <select value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
+                {SERVICE_TYPES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Opis (opcjonalnie):</label>
+              <br />
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+            </div>
+
+            <div>
+              <label>Numer do SMS:</label>
+              <br />
+              <input type="tel" value={profile?.phone_number || ''} readOnly />
+            </div>
+
+            <button type="submit" disabled={submitting}>
+              {submitting ? 'Wysyłanie...' : 'Umów wizytę'}
+            </button>
           </>
         )}
 
-        <label>Pojazd:</label><br />
-        <select value={selectedVehicleId} onChange={e => setSelectedVehicleId(e.target.value)}>
-          <option value="">-- wybierz --</option>
-          {vehiclesSafe.map(vehicle => (
-            <option key={vehicle.id} value={vehicle.id}>
-              {vehicle.brand} {vehicle.model} ({vehicle.engine})
-            </option>
-          ))}
-        </select>
-
-        <label>Usługa:</label><br />
-        <select value={serviceType} onChange={e => setServiceType(e.target.value)}>
-          {SERVICE_TYPES.map(s => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-
-        <label>Opis (opcjonalnie):</label><br />
-        <textarea value={description} onChange={e => setDescription(e.target.value)} />
-
-        <label>Numer do SMS:</label><br />
-        <input type="tel" value={profile?.phone_number || ''} readOnly />
-
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Wysyłanie...' : 'Umów wizytę'}
-        </button>
+        {!isUserAuthenticated && (
+          <p>
+            Zaloguj się, aby umówić wizytę, dodać pojazd i uzupełnić dane kontaktowe.
+          </p>
+        )}
       </form>
+
+      <hr />
+
+      {/* Sekcja debugowania */}
+      <h3>🛠️ Debug: Stan danych</h3>
+      <p>Wybrana data: {selectedDate ? selectedDate.toISOString() : 'Brak'}</p>
+      <p>Liczba dni w kalendarzu: {calendar.length}</p>
+      <p>Liczba dostępnych slotów dla wybranego dnia: {slotsForSelectedDay.length}</p>
+
+      <h4>Pierwsze 5 dni z kalendarza:</h4>
+      <pre style={{ maxHeight: 200, overflow: 'auto', fontSize: '12px' }}>
+        {JSON.stringify(calendar.slice(0, 5), null, 2)}
+      </pre>
     </div>
   );
 }

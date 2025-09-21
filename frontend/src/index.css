@@ -1,12 +1,16 @@
+/* Zmienne globalne */
 :root {
   --color-bg: #121212;
+  --color-bg-light: #222;
   --color-text: #e0e0e0;
   --color-accent: #e53935;
   --color-border: #424242;
   --color-error: #ef5350;
   --color-success: #66bb6a;
+  --color-white: #ffffff;
 }
 
+/* Ogólne style dla body i elementów podstawowych */
 body {
   margin: 0;
   background-color: var(--color-bg);
@@ -20,6 +24,7 @@ a {
   text-decoration: none;
 }
 
+/* Stylizacja przycisków */
 button {
   background-color: var(--color-accent);
   color: var(--color-text);
@@ -37,10 +42,11 @@ button:focus {
   outline: none;
 }
 
+/* Stylizacja pól formularza */
 input,
 select,
 textarea {
-  background-color: #222;
+  background-color: var(--color-bg-light);
   color: var(--color-text);
   border: 1px solid var(--color-border);
   padding: 0.5em;
@@ -64,6 +70,7 @@ label {
   font-weight: 600;
 }
 
+/* Stylizacja formularzy i alertów */
 .alert {
   padding: 0.8em 1em;
   border-radius: 4px;
@@ -72,26 +79,15 @@ label {
 
 .alert.error {
   background-color: var(--color-error);
-  color: #fff;
+  color: var(--color-white);
 }
 
 .alert.success {
   background-color: var(--color-success);
-  color: #fff;
+  color: var(--color-white);
 }
 
-form {
-  max-width: 400px;
-  margin: auto;
-}
-
-@media (max-width: 480px) {
-  form {
-    padding: 0 1em;
-  }
-}
-
-/* react-tel-input */
+/* -------------------- React-tel-input Styles -------------------- */
 .react-tel-input .form-control::placeholder {
   color: #bbb;
   opacity: 1;
@@ -103,8 +99,17 @@ form {
   outline: none !important;
 }
 
+.react-tel-input .flag-dropdown {
+  background-color: var(--color-bg-light) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.react-tel-input .selected-flag {
+  background-color: var(--color-bg-light) !important;
+}
+
 .react-tel-input .country-list {
-  background-color: #222 !important;
+  background-color: var(--color-bg-light) !important;
   color: var(--color-text) !important;
   border: 1px solid var(--color-border) !important;
   max-height: 200px;
@@ -112,46 +117,16 @@ form {
 }
 
 .react-tel-input .country-list .country.highlight {
-  background-color: var(--color-accent) !important; /* kontrastujący czerwony */
-  color: #fff !important;
-}
-
-.react-tel-input .country-list .country {
-  padding: 0.3em 0.6em;
-  cursor: pointer;
+  background-color: var(--color-accent) !important;
+  color: var(--color-white) !important;
 }
 
 .react-tel-input .country-list .country:hover {
-  background-color: #b62c28 !important; /* ciemniejszy czerwony na hover */
-  color: #fff !important;
+  background-color: #b62c28 !important; /* ciemniejszy czerwony */
+  color: var(--color-white) !important;
 }
 
-/* Tło i obramowanie flagi oraz elementu wyboru kraju */
-.react-tel-input .flag-dropdown {
-  background-color: #222 !important;
-  border: 1px solid var(--color-border) !important;
-}
-
-/* Flaga wewnątrz */
-.react-tel-input .selected-flag {
-  background-color: #222 !important;
-  color: var(--color-text) !important;
-}
-
-/* Pole wyszukiwania w dropdown */
-.react-tel-input .search {
-  background-color: #222 !important;
-  color: var(--color-text) !important;
-  border: 1px solid var(--color-border) !important;
-}
-
-/* Placeholder w polu wyszukiwania */
-.react-tel-input .search input::placeholder {
-  color: #bbb !important;
-  opacity: 1;
-}
-
-/* Specjalne style dla react-calendar */
+/* -------------------- React-calendar Styles -------------------- */
 .react-calendar {
   background-color: var(--color-bg) !important;
   color: var(--color-text) !important;
@@ -170,12 +145,12 @@ form {
 
 .react-calendar__tile:hover {
   background-color: var(--color-accent) !important;
-  color: white !important;
+  color: var(--color-white) !important;
 }
 
 .react-calendar__tile--active {
   background-color: var(--color-accent) !important;
-  color: white !important;
+  color: var(--color-white) !important;
   border-radius: 8px !important;
 }
 
@@ -194,12 +169,13 @@ form {
   color: var(--color-error) !important;
 }
 
-.react-calendar__navigation__arrow {
-  color: var(--color-text) !important;
+.react-calendar__navigation__arrow,
+.react-calendar__navigation__label {
   background-color: transparent !important;
   border: none !important;
-  font-size: 1.5em !important;
+  color: var(--color-text) !important;
   cursor: pointer !important;
+  font-size: 1.5em !important;
   transition: color 0.3s ease !important;
 }
 
@@ -210,44 +186,27 @@ form {
 }
 
 .react-calendar__navigation__label {
-  color: var(--color-text) !important;
-  background-color: transparent !important;
-  border-radius: 4px;
-  padding: 0.2em 0.4em;
-  cursor: default;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.react-calendar__navigation__label:hover,
-.react-calendar__navigation__label:focus {
-  background-color: var(--color-accent) !important;
-  color: #fff !important;
-  outline: none !important;
-}
-
-.react-calendar__navigation__label {
   pointer-events: none;
 }
 
-/* Pasek z animacją logotypów samochodowych */
+/* -------------------- Pasek z animacją logotypów -------------------- */
 .car-logos-animation-container {
   overflow: hidden;
   width: 100%;
-  background-color: var(--color-accent);
   padding: 20px 0;
-  border-top: 1px solid #b71c1c;
-  border-bottom: 1px solid #b71c1c;
-  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.4);
+  background-color: var(--color-white);
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .car-logos-track {
   display: flex;
-  /* Szerokość kontenera musi być dokładnie dwukrotnością szerokości paska z logotypami */
   width: auto;
   animation: scrollLeft 60s linear infinite;
 }
 
-/* Pojedynczy element z logiem */
 .car-logo-item {
   flex-shrink: 0;
   height: 80px;
@@ -261,21 +220,120 @@ form {
   height: 100%;
   width: auto;
   object-fit: contain;
-  filter: brightness(0.9);
+  filter: brightness(0.8);
   transition: filter 0.3s ease;
 }
 
 .car-logo:hover {
-  filter: brightness(1);
+  filter: brightness(0.6);
   cursor: pointer;
 }
 
-/* Definicja animacji */
 @keyframes scrollLeft {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%); /* To przesunięcie jest kluczowe */
+    transform: translateX(-50%);
+  }
+}
+
+/* -------------------- Optymalizacja dla urządzeń mobilnych -------------------- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 1em;
+}
+
+/* Poprawiona reguła dla formularzy, żeby działała na wszystkich ekranach */
+form {
+  max-width: 400px;
+  margin: auto;
+}
+
+/* -------------------- Nowe style dla strony Appointment -------------------- */
+.appointment-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2em 1em;
+}
+
+.appointment-form {
+  max-width: 600px; /* Zwiększenie szerokości formularza dla lepszej prezentacji */
+  width: 100%;
+  margin: 0 auto;
+}
+
+.appointment-form h2 {
+  text-align: center;
+  margin-bottom: 1.5em;
+}
+
+.form-group {
+  margin-bottom: 1.5em;
+}
+
+.form-group label {
+  margin-bottom: 0.5em;
+}
+
+.form-row {
+  display: flex;
+  gap: 1em; /* Odstęp między elementami w jednym rzędzie */
+  align-items: center;
+}
+
+.form-row .form-item {
+  flex-grow: 1;
+}
+
+/* Ustawienie szerokości dla kalendarza, aby był wyśrodkowany */
+.react-calendar {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+/* Mniejsza szerokość dla pól wyboru godziny i pojazdu */
+.form-small-item {
+  max-width: 250px;
+}
+
+/* Media query dla lepszej responsywności na mniejszych ekranach */
+@media (max-width: 600px) {
+  .appointment-form {
+    padding: 0 1em;
+  }
+  .form-row {
+    flex-direction: column; /* Ułożenie w kolumnie na małych ekranach */
+  }
+}
+
+/* -------------------- Optymalizacja dla urządzeń mobilnych -------------------- */
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 1em;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+  .car-logos-animation-container {
+    padding: 10px 0;
+  }
+  .car-logo-item {
+    height: 60px;
+    margin: 0 15px;
+  }
+  .car-logos-track {
+    animation: scrollLeft 45s linear infinite; /* Zmniejszona prędkość dla urządzeń mobilnych */
   }
 }
