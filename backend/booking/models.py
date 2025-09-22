@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 
-from backend.backend.booking.bookingutils.sms import send_sms
+from backend.booking.utils.sms import send_sms
 
 
 class TimeSlot(models.Model):

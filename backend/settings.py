@@ -90,11 +90,11 @@ CELERY_TIMEZONE = "Europe/Warsaw"
 
 CELERY_BEAT_SCHEDULE = {
     'create-time-slots-daily': {
-        'task': 'backend.booking.tasks.create_time_slots',
+        'task': 'booking.tasks.create_time_slots',
         'schedule': crontab(minute='0', hour='0'),
     },
     'send-reminder-sms-every-minute': {
-        'task': 'backend.booking.tasks.send_reminder_sms',
+        'task': 'booking.tasks.send_reminder_sms',
         'schedule': crontab(minute='*/1'),
     },
 }

@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
-from backend.bookingmodels import Appointment, TimeSlot
-from backend.bookingserializers.appointment import AppointmentSerializer
+from backend.booking.models import Appointment, TimeSlot
+from backend.booking.serializers.appointment import AppointmentSerializer
 
 
 class StandardResultsSetPagination(PageNumberPagination):
