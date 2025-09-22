@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
 
-from booking.models import TimeSlot
-from booking.serializers.timeslot import TimeSlotSerializer
+from backend.bookingmodels import TimeSlot
+from backend.bookingserializers.timeslot import TimeSlotSerializer
 
 
 class TimeSlotListCreateView(APIView):

@@ -1,5 +1,5 @@
 import pytest
-from booking.factories import VehicleFactory
+from backend.booking.factories import VehicleFactory
 
 @pytest.mark.django_db
 def test_vehicle_creation_and_fields():

@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from booking.models import Vehicle
-from booking.serializers.vehicle import VehicleSerializer
+from backend.bookingmodels import Vehicle
+from backend.bookingserializers.vehicle import VehicleSerializer
 
 
 class VehicleListCreateView(APIView):

@@ -1,6 +1,6 @@
 import pytest
-from booking.models import User, Vehicle, TimeSlot, Appointment
-from booking.factories import UserFactory, VehicleFactory, TimeSlotFactory, AppointmentFactory
+from backend.booking.models import User, Vehicle, TimeSlot, Appointment
+from backend.booking.factories import UserFactory, VehicleFactory, TimeSlotFactory, AppointmentFactory
 
 @pytest.mark.django_db
 def test_create_user():

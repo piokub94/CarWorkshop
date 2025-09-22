@@ -1,8 +1,8 @@
 import pytest
 from rest_framework.test import APIClient
 from django.urls import reverse
-from booking.factories import UserFactory, VehicleFactory, TimeSlotFactory, AppointmentFactory
-from booking.models import Appointment
+from backend.booking.factories import UserFactory, VehicleFactory, TimeSlotFactory, AppointmentFactory
+from backend.booking.models import Appointment
 from datetime import date as dt_date, timedelta
 
 

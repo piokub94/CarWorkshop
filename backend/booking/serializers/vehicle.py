@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from booking.models import Vehicle
+from backend.booking.models import Vehicle
 
 
 class VehicleSerializer(serializers.ModelSerializer):

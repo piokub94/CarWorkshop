@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from booking.models import Profile
+from backend.booking.models import Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):

@@ -1,9 +1,9 @@
 from celery import shared_task
 from django.utils import timezone
 from datetime import date, timedelta, time
-from booking.models import Appointment, TimeSlot
-from booking.utils.sms import send_sms
 
+from backend.bookingmodels import Appointment, TimeSlot  # Zmiana tutaj
+from backend.bookingutils.sms import send_sms  # Zmiana tutaj
 
 @shared_task
 def send_confirmation_sms(appointment_id):

@@ -1,6 +1,6 @@
 import pytest
-from booking.factories import VehicleFactory, AppointmentFactory
-from booking.serializers import VehicleSerializer, AppointmentSerializer
+from backend.booking.factories import VehicleFactory, AppointmentFactory
+from backend.booking.serializers import VehicleSerializer, AppointmentSerializer
 
 @pytest.mark.django_db
 def test_vehicle_serializer_serializes_correctly():

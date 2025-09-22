@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
                 ('service_type', models.CharField(choices=[('PRZEGLAD', 'Przegląd okresowy'), ('HAMULCE', 'Wymiana hamulców'), ('DIAGNOSTYKA', 'Diagnostyka'), ('INNE', 'Inne')], default='PRZEGLAD', max_length=20)),
                 ('description', models.TextField(blank=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('slot', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='booking.timeslot')),
-                ('vehicle', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='booking.vehicle')),
+                ('slot', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='backend.bookingtimeslot')),
+                ('vehicle', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='backend.bookingvehicle')),
             ],
         ),
     ]

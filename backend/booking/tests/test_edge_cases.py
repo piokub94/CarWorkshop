@@ -1,5 +1,5 @@
 import pytest
-from booking.factories import UserFactory, AppointmentFactory, TimeSlotFactory
+from backend.booking.factories import UserFactory, AppointmentFactory, TimeSlotFactory
 
 @pytest.mark.django_db
 def test_appointment_without_vehicle_is_allowed():

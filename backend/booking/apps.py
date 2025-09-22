@@ -8,7 +8,7 @@
 #     name = 'booking'
 #
 #     def ready(self):
-#         from booking.models import TimeSlot
+#         from backend.bookingmodels import TimeSlot
 #         today = now().date()
 #         start_hour, end_hour = 9, 17
 #

@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'booking',
+    'backend.booking',  # Poprawiona ścieżka
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
@@ -90,11 +90,11 @@ CELERY_TIMEZONE = "Europe/Warsaw"
 
 CELERY_BEAT_SCHEDULE = {
     'create-time-slots-daily': {
-        'task': 'booking.tasks.create_time_slots',
+        'task': 'backend.booking.tasks.create_time_slots',
         'schedule': crontab(minute='0', hour='0'),
     },
     'send-reminder-sms-every-minute': {
-        'task': 'booking.tasks.send_reminder_sms',
+        'task': 'backend.booking.tasks.send_reminder_sms',
         'schedule': crontab(minute='*/1'),
     },
 }

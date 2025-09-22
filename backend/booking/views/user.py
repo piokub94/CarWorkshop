@@ -8,9 +8,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
-from booking.serializers.user import RegisterSerializer, UserSerializer
-from booking.serializers.profile import ProfileSerializer
-from booking.models import Profile
+from backend.bookingserializers.user import RegisterSerializer, UserSerializer
+from backend.bookingserializers.profile import ProfileSerializer
+from backend.bookingmodels import Profile
 
 
 @api_view(['POST'])

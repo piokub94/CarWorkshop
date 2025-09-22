@@ -1,5 +1,5 @@
 import pytest
-from booking.factories import UserFactory
+from backend.booking.factories import UserFactory
 
 @pytest.mark.django_db
 def test_user_creation_and_fields():

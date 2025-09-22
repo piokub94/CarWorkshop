@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from booking.models import TimeSlot
+from backend.booking.models import TimeSlot
 
 
 class TimeSlotSerializer(serializers.ModelSerializer):

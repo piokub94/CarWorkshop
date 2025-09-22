@@ -1,16 +1,16 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 
-from booking.views.appointment import (
+from backend.booking.views.appointment import (  # Zmiana tutaj
     CreateAppointmentView,
     UserAppointmentsView,
     AdminAppointmentsView,
     AppointmentDetailView,
 )
-from booking.views.vehicle import VehicleListCreateView, VehicleDetailView
-from booking.views.timeslot import TimeSlotListCreateView, TimeSlotDetailView
-from booking.views.user import register_view, profile_view
-from booking.views.calendar import calendar_view
+from backend.booking.views.vehicle import VehicleListCreateView, VehicleDetailView  # Zmiana tutaj
+from backend.booking.views.timeslot import TimeSlotListCreateView, TimeSlotDetailView  # Zmiana tutaj
+from backend.booking.views.user import register_view, profile_view  # Zmiana tutaj
+from backend.booking.views.calendar import calendar_view  # Zmiana tutaj
 
 urlpatterns = [
     # Auth

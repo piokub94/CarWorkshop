@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from booking.models import Appointment
+from backend.booking.models import Appointment
 
 
 class AppointmentSerializer(serializers.ModelSerializer):

@@ -3,7 +3,7 @@ from factory.django import DjangoModelFactory
 from django.contrib.auth.models import User
 from datetime import date, time, timedelta
 from random import randint, choice
-from booking.models import TimeSlot, Vehicle, Appointment
+from backend.booking.models import TimeSlot, Vehicle, Appointment
 
 class UserFactory(DjangoModelFactory):
     class Meta:
