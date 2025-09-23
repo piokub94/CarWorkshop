@@ -69,16 +69,6 @@ class Profile(models.Model):
         return f"Profil użytkownika {self.user.username}"
 
 
-# --- Signals (po definicjach modeli) ---
-
-@receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    else:
-        Profile.objects.get_or_create(user=instance)
-
-
 @receiver(post_save, sender=Appointment)
 def appointment_created_sms(sender, instance, created, **kwargs):
     """Wyślij SMS po utworzeniu wizyty; użyj numeru z wizyty lub z profilu."""
