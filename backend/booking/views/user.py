@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 
 from backend.booking.serializers.user import RegisterSerializer, UserSerializer
 from backend.booking.serializers.profile import ProfileSerializer
@@ -19,18 +20,33 @@ def register_view(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        # profil tworzy się w sygnale post_save(User)
-        return Response({"message": "Użytkownik zarejestrowany"}, status=status.HTTP_201_CREATED)
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            "message": "Użytkownik zarejestrowany",
+            "token": token.key,
+            "username": user.username,
+        }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    # Użyj wbudowanego widoku DRF do logowania
+    response = ObtainAuthToken.as_view()(request=request._request)
+    if response.status_code == status.HTTP_200_OK:
+        token = response.data.get('token')
+        user = Token.objects.get(key=token).user
+        return Response({
+            "token": token,
+            "username": user.username
+        })
+    return Response({"detail": "Nieprawidłowe dane uwierzytelniające."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def profile_view(request):
-    """
-    GET  -> zwraca {id, username, email, phone_number}
-    PATCH -> aktualizuje phone_number w modelu Profile
-    """
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
 
@@ -40,17 +56,16 @@ def profile_view(request):
         user_data['phone_number'] = profile_data.get('phone_number', '')
         return Response(user_data)
 
-    # PATCH
     serializer = ProfileSerializer(profile, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        # zwróć spójny kształt odpowiedzi jak w GET
         user_data = UserSerializer(user).data
         user_data['phone_number'] = serializer.data.get('phone_number', '')
         return Response(user_data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
-        Token.objects.create(user=instance)
+        Token.objects.get_or_create(user=instance)

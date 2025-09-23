@@ -1,4 +1,3 @@
-// src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -34,16 +33,35 @@ export default function Register() {
     }
 
     try {
+      // Poprawka tutaj: Wysyłanie danych w zagnieżdżonej strukturze,
+      // która pasuje do oczekiwań backendu (serializatora Django).
       await api.post('register/', {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        phone: formData.phone,
+        profile: {
+          phone_number: formData.phone,
+        },
       });
       setMessage('Rejestracja zakończona sukcesem!');
       navigate('/login');
     } catch (err) {
-      setMessage(err.response?.data?.detail || 'Błąd podczas rejestracji.');
+      // Obsługa błędów z backendu
+      let errorMessage = 'Błąd podczas rejestracji.';
+      if (err.response && err.response.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.response.data.username) {
+          errorMessage = `Błąd nazwy użytkownika: ${err.response.data.username[0]}`;
+        } else if (err.response.data.email) {
+          errorMessage = `Błąd email: ${err.response.data.email[0]}`;
+        } else if (err.response.data.password) {
+          errorMessage = `Błąd hasła: ${err.response.data.password[0]}`;
+        } else if (err.response.data.profile) {
+          errorMessage = `Błąd profilu: ${err.response.data.profile[0]}`;
+        }
+      }
+      setMessage(errorMessage);
     }
   };
 

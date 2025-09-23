@@ -52,8 +52,8 @@ class Appointment(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     phone_number = PhoneNumberField(blank=True, null=True)
-    slot = models.OneToOneField(TimeSlot, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
+    slot = models.OneToOneField('TimeSlot', on_delete=models.CASCADE)
+    vehicle = models.ForeignKey('Vehicle', on_delete=models.CASCADE, null=True, blank=True)
     service_type = models.CharField(max_length=20, choices=SERVICE_CHOICES, default='PRZEGLAD')
     description = models.TextField(blank=True)
 
@@ -73,7 +73,6 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
-    # Tworzymy profil przy rejestracji; przy aktualizacji dbamy, by istniał
     if created:
         Profile.objects.create(user=instance)
     else:
