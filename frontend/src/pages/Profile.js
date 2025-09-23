@@ -35,11 +35,13 @@ export default function Profile() {
 
   const saveProfile = async () => {
     setMessage('');
-    if (!phoneInput || !isValidPhoneNumber(phoneInput)) {
+    // Sprawdź, czy numer telefonu jest pusty. Jeśli tak, można go usunąć.
+    if (phoneInput && !isValidPhoneNumber(phoneInput)) {
       setMessage('Proszę podać prawidłowy numer telefonu w formacie międzynarodowym.');
       return;
     }
     try {
+      // Wyślij poprawnie sformatowany numer telefonu do API
       const res = await api.patch('profile/', { phone_number: phoneInput });
       setProfileData(res.data);
       setEditing(false);
@@ -75,7 +77,7 @@ export default function Profile() {
             Numer telefonu:
             <PhoneInput
               international
-              defaultCountry="PL" // <-- tu ustawiamy domyślny kraj Polska (+48)
+              defaultCountry="PL"
               value={phoneInput}
               onChange={setPhoneInput}
               countrySelectProps={{ unicodeFlags: true }}

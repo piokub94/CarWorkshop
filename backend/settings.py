@@ -2,35 +2,28 @@
 Django settings for backend project.
 """
 
+import os
 from pathlib import Path
 from celery.schedules import crontab
 import environ
 
 # Inicjalizacja django-environ
-env = environ.Env(
-    SECRET_KEY=(str, 'django-insecure-default-secret-key-for-prod'),
-    DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
-    DATABASE_URL=(str, 'postgres://postgres:postgres@localhost:5432/workshop'),
-    REDIS_URL=(str, 'redis://localhost:6379/0'),
-    TWILIO_ACCOUNT_SID=(str, ''),
-    TWILIO_AUTH_TOKEN=(str, ''),
-    TWILIO_PHONE_NUMBER=(str, ''),
-)
+env = environ.Env()
 
-# Wczytaj plik .env (jeśli istnieje)
-environ.Env.read_env()
+# Wczytaj plik .env jeśli istnieje (lokalnie). Na Railway zmienne są wstrzykiwane bezpośrednio.
+if os.path.exists(os.path.join(Path(__file__).resolve().parent.parent, '.env')):
+    environ.Env.read_env(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -40,19 +33,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend.booking',  # Poprawiona ścieżka
+    'backend.booking',
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
     'corsheaders',
     'phonenumber_field',
     'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,7 +61,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'dist')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,8 +76,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 # --- CELERY CONFIGURATION ---
-CELERY_BROKER_URL = env('REDIS_URL')
-CELERY_RESULT_BACKEND = env('REDIS_URL')
+CELERY_BROKER_URL = env.str('REDIS_URL')
+CELERY_RESULT_BACKEND = env.str('REDIS_URL')
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -99,12 +94,12 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
+CELERY_RESULT_BACKEND_ALWAYS_READY = True
 
 # --- TWILIO CONFIGURATION ---
-TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = env('TWILIO_PHONE_NUMBER')
+TWILIO_ACCOUNT_SID = env.str('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = env.str('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = env.str('TWILIO_PHONE_NUMBER')
 
 
 # Database
@@ -132,13 +127,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 USE_I18N = True
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Default primary key field type
@@ -169,3 +165,6 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
     ),
 }
+
+# WhiteNoise configuration
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

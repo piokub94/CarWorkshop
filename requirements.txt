@@ -6,7 +6,9 @@ amqp==5.3.1
 asgiref==3.9.1
 astroid==3.3.10
 attrs==25.3.0
+backend==0.2.4.1
 billiard==4.2.1
+booking==1.0.0
 celery==5.5.3
 certifi==2025.8.3
 charset-normalizer==3.4.3
@@ -24,7 +26,9 @@ django-environ==0.11.2
 django-filter==25.1
 django-phonenumber-field==8.1.0
 django-timezone-field==7.1
+django_celery_results==2.6.0
 djangorestframework==3.16.1
+factories==1.4.1
 factory_boy==3.3.3
 Faker==37.5.3
 frozenlist==1.7.0
@@ -41,7 +45,9 @@ platformdirs==4.3.8
 pluggy==1.6.0
 prompt_toolkit==3.0.51
 propcache==0.3.2
-psycopg[binary]
+psycopg==3.2.9
+psycopg-binary==3.2.9
+psycopg2-binary==2.9.10
 Pygments==2.19.2
 PyJWT==2.10.1
 pylint==3.3.7
@@ -61,6 +67,7 @@ twilio==9.7.1
 typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.5.0
+utils==1.0.2
 vine==5.1.0
 wcwidth==0.2.13
 whitenoise==6.9.0
