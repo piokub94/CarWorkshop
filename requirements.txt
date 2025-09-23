@@ -41,7 +41,7 @@ platformdirs==4.3.8
 pluggy==1.6.0
 prompt_toolkit==3.0.51
 propcache==0.3.2
-psycopg-binary==3.2.9
+psycopg[binary]
 Pygments==2.19.2
 PyJWT==2.10.1
 pylint==3.3.7
