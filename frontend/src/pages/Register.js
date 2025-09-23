@@ -33,8 +33,6 @@ export default function Register() {
     }
 
     try {
-      // Poprawka tutaj: Wysyłanie danych w zagnieżdżonej strukturze,
-      // która pasuje do oczekiwań backendu (serializatora Django).
       await api.post('register/', {
         username: formData.username,
         email: formData.email,
@@ -46,19 +44,29 @@ export default function Register() {
       setMessage('Rejestracja zakończona sukcesem!');
       navigate('/login');
     } catch (err) {
-      // Obsługa błędów z backendu
+      // DEBUGOWANIE: Wyświetlenie szczegółów błędu w konsoli
+      console.error('Błąd podczas rejestracji:', err.response);
+
       let errorMessage = 'Błąd podczas rejestracji.';
       if (err.response && err.response.data) {
+        // Sprawdź, czy błąd jest w formacie JSON
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
-        } else if (err.response.data.username) {
-          errorMessage = `Błąd nazwy użytkownika: ${err.response.data.username[0]}`;
-        } else if (err.response.data.email) {
-          errorMessage = `Błąd email: ${err.response.data.email[0]}`;
-        } else if (err.response.data.password) {
-          errorMessage = `Błąd hasła: ${err.response.data.password[0]}`;
-        } else if (err.response.data.profile) {
-          errorMessage = `Błąd profilu: ${err.response.data.profile[0]}`;
+        } else {
+          // Analizuj błędy z serializatora
+          const errorDetails = err.response.data;
+          let messages = [];
+
+          for (const field in errorDetails) {
+            if (field === 'profile') {
+              if (errorDetails.profile && errorDetails.profile.phone_number) {
+                messages.push(`Błąd numeru telefonu: ${errorDetails.profile.phone_number.join(', ')}`);
+              }
+            } else {
+              messages.push(`Błąd w polu "${field}": ${errorDetails[field].join(', ')}`);
+            }
+          }
+          errorMessage = messages.join('; ');
         }
       }
       setMessage(errorMessage);
@@ -69,7 +77,6 @@ export default function Register() {
     <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <h2>Rejestracja</h2>
       {message && <p style={{ color: 'red' }}>{message}</p>}
-
       <form onSubmit={handleSubmit}>
         <label>Login:</label><br />
         <input
