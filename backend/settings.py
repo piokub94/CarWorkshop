@@ -23,9 +23,12 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+# Upewnij się, że ALLOWED_HOSTS obsługuje zarówno środowisko lokalne, jak i Railway
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 if not DEBUG:
-    ALLOWED_HOSTS.append(env.str('RAILWAY_PUBLIC_DOMAIN'))
+    RAILWAY_PUBLIC_DOMAIN = env.str('RAILWAY_PUBLIC_DOMAIN', None)
+    if RAILWAY_PUBLIC_DOMAIN:
+        ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
 
 # Application definition
 INSTALLED_APPS = [
