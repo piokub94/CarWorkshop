@@ -1,3 +1,4 @@
+// src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -19,8 +20,15 @@ export default function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePhoneChange = (value) => {
-    setFormData({ ...formData, phone: value });
+  const handlePhoneChange = (value, country) => {
+    // Usunięcie wszystkich znaków poza cyframi i prefiksem kraju
+    // Upewnij się, że wartość jest poprawna przed formatowaniem
+    if (value) {
+      const cleanPhone = `+${value.replace(/[^\d]/g, '')}`;
+      setFormData({ ...formData, phone: cleanPhone });
+    } else {
+      setFormData({ ...formData, phone: '' });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -37,34 +45,21 @@ export default function Register() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        profile: {
-          phone_number: formData.phone,
-        },
+        phone_number: formData.phone,
       });
       setMessage('Rejestracja zakończona sukcesem!');
       navigate('/login');
     } catch (err) {
-      // DEBUGOWANIE: Wyświetlenie szczegółów błędu w konsoli
       console.error('Błąd podczas rejestracji:', err.response);
-
       let errorMessage = 'Błąd podczas rejestracji.';
       if (err.response && err.response.data) {
-        // Sprawdź, czy błąd jest w formacie JSON
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
         } else {
-          // Analizuj błędy z serializatora
           const errorDetails = err.response.data;
           let messages = [];
-
           for (const field in errorDetails) {
-            if (field === 'profile') {
-              if (errorDetails.profile && errorDetails.profile.phone_number) {
-                messages.push(`Błąd numeru telefonu: ${errorDetails.profile.phone_number.join(', ')}`);
-              }
-            } else {
-              messages.push(`Błąd w polu "${field}": ${errorDetails[field].join(', ')}`);
-            }
+            messages.push(`Błąd w polu "${field}": ${errorDetails[field].join(', ')}`);
           }
           errorMessage = messages.join('; ');
         }
@@ -86,7 +81,6 @@ export default function Register() {
           onChange={handleChange}
           required
         /><br />
-
         <label>Email:</label><br />
         <input
           type="email"
@@ -95,7 +89,6 @@ export default function Register() {
           onChange={handleChange}
           required
         /><br />
-
         <label>Hasło:</label><br />
         <input
           type="password"
@@ -104,7 +97,6 @@ export default function Register() {
           onChange={handleChange}
           required
         /><br />
-
         <label>Powtórz hasło:</label><br />
         <input
           type="password"
@@ -113,15 +105,13 @@ export default function Register() {
           onChange={handleChange}
           required
         /><br />
-
         <label>Numer telefonu:</label><br />
         <PhoneInput
-          country={'pl'} // domyślnie Polska
+          country={'pl'}
           value={formData.phone}
           onChange={handlePhoneChange}
           inputStyle={{ width: '100%' }}
         /><br />
-
         <button type="submit" style={{ marginTop: '10px' }}>Zarejestruj się</button>
       </form>
     </div>
