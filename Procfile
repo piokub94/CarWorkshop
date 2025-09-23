@@ -1,3 +1,4 @@
-web: python manage.py migrate --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+release: python manage.py migrate --noinput && python manage.py collectstatic --noinput
+web: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
 worker: celery -A backend worker --loglevel=info --concurrency=2
 beat: celery -A backend beat --loglevel=info
