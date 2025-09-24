@@ -1,9 +1,11 @@
 from celery import shared_task
 from django.utils import timezone
-from datetime import date, timedelta, time
+from datetime import timedelta, time
+from django.db import IntegrityError
 
-from backend.booking.models import Appointment, TimeSlot  # Zmiana tutaj
-from backend.booking.utils.sms import send_sms  # Zmiana tutaj
+from backend.booking.models import Appointment, TimeSlot
+from backend.booking.utils.sms import send_sms
+
 
 @shared_task
 def send_confirmation_sms(appointment_id):
@@ -56,23 +58,24 @@ def test_reminder_sms(phone_number="+48123456789"):
 
 
 @shared_task
-
 def create_time_slots():
-    from backend.booking.models import TimeSlot  # import w środku, żeby Celery mogło znaleźć
-    from django.utils import timezone
-    from datetime import timedelta, time
-
+    """Tworzy sloty na kolejne 90 dni od dziś, w godzinach 9:00-16:30 co 30 minut."""
     start_date = timezone.localdate()
     end_date = start_date + timedelta(days=90)
 
     for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1)):
         if single_date.weekday() in [5, 6]:  # weekendy pomijamy
             continue
+
         for hour in range(9, 17):
             for minute in (0, 30):
                 slot_time = time(hour, minute)
-                TimeSlot.objects.get_or_create(
-                    date=single_date,
-                    time=slot_time,
-                    defaults={'is_booked': False}
-                )
+                try:
+                    TimeSlot.objects.get_or_create(
+                        date=single_date,
+                        time=slot_time,
+                        defaults={'is_booked': False}
+                    )
+                except IntegrityError:
+                    # jeśli już istnieje duplikat, pomijamy
+                    continue

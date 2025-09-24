@@ -12,6 +12,8 @@ class TimeSlot(models.Model):
     time = models.TimeField()
     is_booked = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('date', 'time')  # <-- to zapobiega duplikatom
     def __str__(self):
         return f"{self.date} {self.time.strftime('%H:%M')}"
 
