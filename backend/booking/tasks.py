@@ -47,7 +47,7 @@ def test_confirmation_sms(phone_number="+48123456789"):
     return f"Confirmation SMS sent to {phone_number}"
 
 
-@shared_task)
+@shared_task
 def test_reminder_sms(phone_number="+48123456789"):
     """Test wysyłki SMS przypominającego (na fejkowy numer)."""
     message = "✅ Test: Przypomnienie o wizycie jutro o 10:00."
