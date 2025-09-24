@@ -81,21 +81,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 # --- CELERY CONFIGURATION ---
-CELERY_BROKER_URL = env.str('REDIS_URL')
-CELERY_RESULT_BACKEND = env.str('REDIS_URL')
+CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Europe/Warsaw"
 
 CELERY_BEAT_SCHEDULE = {
-    'create-time-slots-daily': {
-        'task': 'booking.tasks.create_time_slots',
-        'schedule': crontab(minute='0', hour='0'),
+    "create-daily-time-slots": {
+        "task": "backend.booking.tasks.create_time_slots",
+        "schedule": crontab(hour=0, minute=0),  # codziennie o północy
     },
-    'send-reminder-sms-every-minute': {
-        'task': 'booking.tasks.send_reminder_sms',
-        'schedule': crontab(minute='*/1'),
+    "send-reminder-sms": {
+        "task": "backend.booking.tasks.send_reminder_sms",
+        "schedule": crontab(minute=0, hour="*"),  # co godzinę
     },
 }
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
