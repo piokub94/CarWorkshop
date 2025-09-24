@@ -5,7 +5,7 @@ from datetime import date, timedelta, time
 from backend.booking.models import Appointment, TimeSlot  # Zmiana tutaj
 from backend.booking.utils.sms import send_sms  # Zmiana tutaj
 
-@shared_task(name="backend.booking.tasks.send_reminder_sms")
+@shared_task
 def send_confirmation_sms(appointment_id):
     """Wyślij SMS po utworzeniu rezerwacji."""
     try:
@@ -20,7 +20,7 @@ def send_confirmation_sms(appointment_id):
         pass
 
 
-@shared_task(name="backend.booking.tasks.send_reminder_sms")
+@shared_task
 def send_reminder_sms():
     """Wyślij przypomnienie SMS 24h przed terminem wizyty."""
     now = timezone.now()
@@ -39,7 +39,7 @@ def send_reminder_sms():
             send_sms(str(appointment.phone_number), message)
 
 
-@shared_task(name="backend.booking.tasks.send_reminder_sms")
+@shared_task
 def test_confirmation_sms(phone_number="+48123456789"):
     """Test wysyłki SMS potwierdzającego (na fejkowy numer)."""
     message = "✅ Test: Twoja rezerwacja została potwierdzona."
@@ -47,7 +47,7 @@ def test_confirmation_sms(phone_number="+48123456789"):
     return f"Confirmation SMS sent to {phone_number}"
 
 
-@shared_task(name="backend.booking.tasks.send_reminder_sms")
+@shared_task)
 def test_reminder_sms(phone_number="+48123456789"):
     """Test wysyłki SMS przypominającego (na fejkowy numer)."""
     message = "✅ Test: Przypomnienie o wizycie jutro o 10:00."
@@ -55,24 +55,22 @@ def test_reminder_sms(phone_number="+48123456789"):
     return f"Reminder SMS sent to {phone_number}"
 
 
-@shared_task(name="backend.booking.tasks.send_reminder_sms")
+@shared_task
+
 def create_time_slots():
-    """Tworzy sloty na kolejne 90 dni od dziś, w godzinach 9:00-16:30 co 30 minut."""
+    from backend.booking.models import TimeSlot  # import w środku, żeby Celery mogło znaleźć
+    from django.utils import timezone
+    from datetime import timedelta, time
+
     start_date = timezone.localdate()
     end_date = start_date + timedelta(days=90)
 
-    # Usuwamy stare sloty, aby uniknąć duplikatów
-    # TimeSlot.objects.filter(date__lt=start_date).delete()
-
     for single_date in (start_date + timedelta(n) for n in range((end_date - start_date).days + 1)):
-        # Sprawdź, czy to nie jest weekend
-        if single_date.weekday() in [5, 6]:  # Sobota i Niedziela
+        if single_date.weekday() in [5, 6]:  # weekendy pomijamy
             continue
-
         for hour in range(9, 17):
             for minute in (0, 30):
                 slot_time = time(hour, minute)
-                # Sprawdź, czy slot już istnieje, a jeśli nie, to go utwórz
                 TimeSlot.objects.get_or_create(
                     date=single_date,
                     time=slot_time,
